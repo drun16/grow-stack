@@ -11,6 +11,7 @@
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
   --font-main: 'Inter', system-ui, sans-serif;
+  --gold-glow: rgba(212, 175, 55, 0.5); /* A soft, semi-transparent glow color */
 }
 
 /* --- Global Resets --- */
@@ -38,9 +39,11 @@ a {
 }
 
 .container {
-  max-w-width: 1200px;
+  max-width: 1200px;
+  width:100%;
   margin: 0 auto;
   padding: 0 24px;
+  box-sizing: border-box;
 }
 
 /* --- Typography --- */
@@ -56,7 +59,10 @@ a {
   margin-bottom: 4rem;
 }
 
-.text-gold { color: var(--gold); }
+.text-gold { 
+  color: var(--gold);
+  text-shadow: 0 0 10px var(--gold-glow);
+ }
 .text-center { text-align: center; }
 
 /* --- Utilities & Effects --- */
@@ -77,18 +83,20 @@ a {
   border-radius: 50px;
   transition: all 0.3s ease;
   display: inline-block;
+  white-space: nowrap; /* Prevents text from breaking and stretching the button */
+  flex-shrink: 0;
 }
 
 .btn-primary {
   background-color: var(--gold);
   color: var(--bg-dark);
   padding: 1rem 2rem;
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 .btn-primary:hover {
   background-color: var(--gold-secondary);
-  box-shadow: 0 0 25px rgba(245, 197, 66, 0.6);
+  box-shadow: 0 0 25px rgba(245, 197, 66, 0.7);
   transform: translateY(-2px);
 }
 
@@ -108,6 +116,9 @@ a {
   position: fixed;
   width: 100%;
   top: 0;
+  left: 0;             /* Pin exactly to the left edge */
+  right: 0;            /* Pin exactly to the right edge */
+  box-sizing: border-box;
   z-index: 50;
   transition: all 0.3s ease;
   padding: 1.5rem 0;
@@ -124,6 +135,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap:1rem;
 }
 
 .logo {
@@ -142,6 +154,10 @@ a {
 
 .nav-links a:hover {
   color: var(--gold);
+}
+
+.navbar .btn {
+  flex-shrink: 0; 
 }
 
 /* --- Hero Section --- */
@@ -165,6 +181,7 @@ a {
   background: rgba(212, 175, 55, 0.1);
   border-radius: 50%;
   filter: blur(120px);
+  box-shadow: 0 0 50px var(--gold-glow) inset;
   pointer-events: none;
 }
 
@@ -187,6 +204,7 @@ a {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 0 12px var(--gold-glow));
 }
 
 .hero-desc {
@@ -223,7 +241,7 @@ a {
 
 .service-card:hover {
   border-color: rgba(212, 175, 55, 0.5);
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 40px var(--gold-glow);
   transform: translateY(-8px);
 }
 
@@ -274,6 +292,7 @@ a {
   width: 80%;
   height: 4px;
   background: linear-gradient(to right, transparent, var(--gold), transparent);
+  box-shadow: 0 0 15px var(--gold);
 }
 
 .pricing-name {

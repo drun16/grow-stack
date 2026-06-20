@@ -40,12 +40,35 @@ const Navbar = () => {
           <a href="#pricing">Pricing</a>
           <a href="#contact">Contact</a>
         </div>
-        <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem' }}>
+        <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}>
           Book Consultation
         </button>
       </div>
     </nav>
   );
+};
+
+// --- HELPER COMPONENT ---
+const TypingEffect = ({ text, delay = 0, speed = 50 }) => {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    // Wait for the delay before starting to type
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setDisplayedText(text.substring(0, i + 1));
+        i++;
+        if (i === text.length) clearInterval(interval);
+      }, speed);
+      
+      return () => clearInterval(interval);
+    }, delay);
+    
+    return () => clearTimeout(timer);
+  }, [text, delay, speed]);
+
+  return <>{displayedText}</>;
 };
 
 const Hero = () => (
@@ -54,16 +77,26 @@ const Hero = () => (
     
     <div className="container">
       <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="hero-content mx-auto">
-        <motion.h1 variants={fadeUp} className="hero-title">
-          Transforming Ideas Into <br />
-          <span className="gradient-text">Scalable Digital Solutions</span>
+        
+        {/* UPDATED HERO TITLE WITH TYPING EFFECT */}
+        <motion.h1 variants={fadeUp} className="hero-title" style={{ minHeight: '120px' }}>
+          <TypingEffect text="Transforming Ideas Into " speed={100} /> <br />
+          <span className="gradient-text">
+            <TypingEffect text="Scalable Digital Solutions" delay={1200} speed={100} />
+          </span>
         </motion.h1>
+
         <motion.p variants={fadeUp} className="hero-desc">
           We build modern web applications, cloud solutions, and digital products that help businesses grow faster.
         </motion.p>
         <motion.div variants={fadeUp} className="hero-buttons">
           <button className="btn btn-primary">Get Started</button>
-          <button className="btn btn-glass glass-panel">View Services</button>
+          <button 
+            className="btn btn-glass glass-panel" 
+            onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
+          >
+            View Services
+          </button>
         </motion.div>
       </motion.div>
     </div>
@@ -135,43 +168,144 @@ const Pricing = () => {
   );
 };
 
-const Contact = () => (
-  <section id="contact" className="contact-section">
-    <div className="container contact-form-wrapper">
-      <div className="text-center">
-        <h2 className="section-title">Let's Build Something Great</h2>
-        <p className="section-subtitle">Tell us about your project and we'll get back to you.</p>
-      </div>
-      <motion.form 
-        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-        className="glass-panel contact-form"
-      >
-        <div className="form-row">
-          <div className="form-group">
-            <label>Full Name</label>
-            <input type="text" className="form-control" placeholder="John Doe" />
-          </div>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input type="email" className="form-control" placeholder="john@company.com" />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Phone Number</label>
-          <input type="tel" className="form-control" placeholder="+91 98765 43210" />
-        </div>
-        <div className="form-group">
-          <label>Project Requirement</label>
-          <textarea rows="4" className="form-control" placeholder="Tell us about your goals..."></textarea>
-        </div>
-        <button type="button" className="btn btn-submit">
-          Send Inquiry
-        </button>
-      </motion.form>
-    </div>
-  </section>
-);
+// const Contact = () => (
+//   <section id="contact" className="contact-section">
+//     <div className="container contact-form-wrapper">
+//       <div className="text-center">
+//         <h2 className="section-title">Let's Build Something Great</h2>
+//         <p className="section-subtitle">Tell us about your project and we'll get back to you.</p>
+//       </div>
+//       <motion.form 
+//         initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+//         className="glass-panel contact-form"
+//       >
+//         <div className="form-row">
+//           <div className="form-group">
+//             <label>Full Name</label>
+//             <input type="text" className="form-control" placeholder="John Doe" />
+//           </div>
+//           <div className="form-group">
+//             <label>Email Address</label>
+//             <input type="email" className="form-control" placeholder="john@company.com" />
+//           </div>
+//         </div>
+//         <div className="form-group">
+//           <label>Phone Number</label>
+//           <input type="tel" className="form-control" placeholder="+91 98765 43210" />
+//         </div>
+//         <div className="form-group">
+//           <label>Project Requirement</label>
+//           <textarea rows="4" className="form-control" placeholder="Tell us about your goals..."></textarea>
+//         </div>
+//         <button type="button" className="btn btn-submit">
+//           Send Inquiry
+//         </button>
+//       </motion.form>
+//     </div>
+//   </section>
+// );
 
+const Contact = () => {
+  // 1. Setup state for form data and errors
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    requirement: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 2. Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+  };
+
+  // 3. Validation logic
+  const validateForm = () => {
+    let tempErrors = {};
+    if (!formData.name.trim()) tempErrors.name = "Name is required";
+    if (!formData.email.trim()) {
+      tempErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      tempErrors.email = "Email is invalid";
+    }
+    if (!formData.requirement.trim()) tempErrors.requirement = "Please tell us about your project";
+    
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  // 4. Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setIsSubmitting(true);
+      // Simulate an API call (e.g., sending data to a backend or service like EmailJS)
+      setTimeout(() => {
+        alert("Thank you! Your inquiry has been sent successfully.");
+        setFormData({ name: '', email: '', phone: '', requirement: '' });
+        setIsSubmitting(false);
+      }, 1500);
+    }
+  };
+
+  return (
+    <section id="contact" className="contact-section">
+      <div className="container contact-form-wrapper">
+        <div className="text-center">
+          <h2 className="section-title">Let's Build Something Great</h2>
+          <p className="section-subtitle">Tell us about your project and we'll get back to you.</p>
+        </div>
+        <motion.form 
+          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+          className="glass-panel contact-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="form-row">
+            <div className="form-group">
+              <label>Full Name</label>
+              <input 
+                type="text" name="name" value={formData.name} onChange={handleChange}
+                className="form-control" placeholder="John Doe" 
+              />
+              {errors.name && <span className="text-red-500 text-xs mt-1" style={{color: '#ef4444'}}>{errors.name}</span>}
+            </div>
+            <div className="form-group">
+              <label>Email Address</label>
+              <input 
+                type="email" name="email" value={formData.email} onChange={handleChange}
+                className="form-control" placeholder="john@company.com" 
+              />
+              {errors.email && <span className="text-red-500 text-xs mt-1" style={{color: '#ef4444'}}>{errors.email}</span>}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Phone Number (Optional)</label>
+            <input 
+              type="tel" name="phone" value={formData.phone} onChange={handleChange}
+              className="form-control" placeholder="+91 98765 43210" 
+            />
+          </div>
+          <div className="form-group">
+            <label>Project Requirement</label>
+            <textarea 
+              rows="4" name="requirement" value={formData.requirement} onChange={handleChange}
+              className="form-control" placeholder="Tell us about your goals..."
+            ></textarea>
+            {errors.requirement && <span className="text-red-500 text-xs mt-1" style={{color: '#ef4444'}}>{errors.requirement}</span>}
+          </div>
+          <button type="submit" className="btn btn-submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+          </button>
+        </motion.form>
+      </div>
+    </section>
+  );
+};
 const Footer = () => (
   <footer className="footer">
     <div className="container">
@@ -188,9 +322,9 @@ const Footer = () => (
           <a href="#contact">Contact</a>
         </div>
         <div className="footer-socials">
-          <a href="#"><FaLinkedin /></a>
-          <a href="#"><FaGithub /></a>
-          <a href="#"><FaInstagram /></a>
+          <a href="https://www.linkedin.com/in/dharun-prashob"><FaLinkedin /></a>
+          <a href="https://www.github.com/drun16"><FaGithub /></a>
+          <a href="https://www.instagram.com/dynamic_hood_"><FaInstagram /></a>
         </div>
       </div>
       <div className="footer-bottom">

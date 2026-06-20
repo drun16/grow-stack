@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaCode, FaCloud, FaMobileAlt, FaLinkedin, FaGithub, FaInstagram, FaCheck } from 'react-icons/fa';
+import { FaCode, FaCloud, FaMobileAlt, FaLinkedin, FaGithub, FaInstagram, FaCheck, FaBars, FaTimes } from 'react-icons/fa';
 import './App.css'; // Importing standard CSS
 
 // --- ANIMATION VARIANTS ---
@@ -23,11 +23,18 @@ const staggerContainer = {
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+// Function to toggle menu
+  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  
+  // Function to close menu when a link is clicked
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -40,7 +47,36 @@ const Navbar = () => {
           <a href="#pricing">Pricing</a>
           <a href="#contact">Contact</a>
         </div>
-        <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}>
+        {/* Action Area: Desktop Button & Mobile Toggle */}
+        <div className="nav-actions">
+          {/* This button will be hidden on mobile via CSS */}
+          <button 
+            className="btn btn-primary desktop-cta" 
+            style={{ padding: '0.5rem 1.5rem' }} 
+            onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+          >
+            Book Consultation
+          </button>
+          
+          {/* Hamburger Icon (Visible ONLY on mobile) */}
+          <button className="mobile-menu-btn" onClick={toggleMenu}>
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
+        <a href="#services" onClick={closeMenu}>Services</a>
+        <a href="#pricing" onClick={closeMenu}>Pricing</a>
+        <a href="#contact" onClick={closeMenu}>Contact</a>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => {
+            closeMenu();
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
           Book Consultation
         </button>
       </div>
